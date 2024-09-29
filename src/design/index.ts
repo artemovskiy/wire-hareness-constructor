@@ -77,18 +77,21 @@ export const getDesign = (): Design => {
 
     const sigGround = new Net();
     const sigGndTAIR = new Terminal(xTAIR);
+    sigGround.terminals.push(sigGndTAIR);
     sigGndTAIR.title = `${xTAIR.title}-0`;
     const sigGndTAIRWire = new Wire('green');
     sigGndTAIRWire.a = sigGndTAIR;
     sigGndTAIR.wire = sigGndTAIRWire;
 
     const sigGndTWAT = new Terminal(x013);
+    sigGround.terminals.push(sigGndTWAT);
     sigGndTWAT.title = `${x013.title}-0`;
     const sigGndTWATWire = new Wire('green');
     sigGndTWATWire.a = sigGndTWAT;
     sigGndTWAT.wire = sigGndTWATWire;
 
     const sigGndECU = new Terminal(x01);
+    sigGround.terminals.push(sigGndECU);
     sigGndECU.title = `${x01.title}-0`;
     const sigGndEcuWire = new Wire('green');
     sigGndEcuWire.a = sigGndECU;
@@ -97,8 +100,9 @@ export const getDesign = (): Design => {
     console.log(sigGndECU);
 
     const sigGndWires = [sigGndTAIR.wire, sigGndTWAT.wire, sigGndECU.wire];
-    const wjsiggnd1 = new WireJoint(sigGndWires);
-    wjsiggnd1.title = 'wj1';
+    const wjsiggnd1 = d.createWireJoint(sigGround, 'wj1');
+    wjsiggnd1.edges = sigGndWires;
+    wjsiggnd1.location = e1;
     sigGndWires.forEach(w => w.b = wjsiggnd1);
 
     sigGround.root = sigGndECU;

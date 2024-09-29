@@ -10,6 +10,7 @@ import {
   addEdge,
   Connection,
   Position,
+  ViewportPortal,
 } from '@xyflow/react';
 import dagre from '@dagrejs/dagre';
 
@@ -26,6 +27,8 @@ import { WireNode } from './core/nets/wire-node';
 import { Wire } from './core/nets/wire';
 import { WireJoint } from './core/nets/wire-joint';
 import { Terminal } from './core/nets/terminal';
+import { HarnessEdge } from './core/harness/harness-edge';
+import { HarnessNode } from './core/harness/harness-node';
 
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
@@ -69,19 +72,16 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = 'TB') => 
 
 
 const design = getDesign();
+const harenessEdges = design.collectEdges();
 
-const initialNodes = design.collectNodes().map((n, i) => ({
-  id: n.title,
-  position: { x: 0, y: 0 },
-  data: { label: !n.descr ? n.title : `${n.title} (${n.descr})` },
-  style: { background: 'none', },
-}));
-const initialEdges: Edge[] = design.collectEdges().map((e, i) => ({
-  id: `${e.a.title}--${e.b.title}`,
-  source: e.a.title,
-  target: e.b.title,
-  label: e.length,
-}));
+const edgesWithWjs = new Set<HarnessEdge>();
+for (const e of harenessEdges) {
+  if (design.wireJoints.some(wj => wj.location === e)) {
+    edgesWithWjs.add(e);
+  }
+}
+
+
 
 
 const nodeTypes = {
@@ -91,12 +91,49 @@ const nodeTypes = {
 
 
 function App() {
-  const [nodes, setNodes] = useState<Node[]>(initialNodes);
-  const [edges, setEdges] = useState<Edge[]>(initialEdges);
+  const [nodes, setNodes] = useState<Node[]>([]);
+  const [edges, setEdges] = useState<Edge[]>([]);
+
+  const net = design.nets[0];
+  const netHarnessNodes = net.listInvolvedHarnessNodes();
 
   useEffect(() => {
+    const initialNodes: Node[] = design.collectNodes().map((n, i) => ({
+      id: n.title,
+      position: { x: 0, y: 0 },
+      data: { label: !n.descr ? n.title : `${n.title} (${n.descr})` },
+      style: netHarnessNodes.indexOf(n) >= 0 ? { background: "none", boxShadow: "0 0 6px red" } as React.CSSProperties: { background: 'none', },
+    }));
+    edgesWithWjs.forEach(e => {
+      initialNodes.push({
+        id: `${e.a.title}-wjs-${e.b.title}`,
+        position: { x: 0, y: 0 },
+        data: { label: "wjs" },
+        style: netHarnessNodes.indexOf(e.a as HarnessNode) >= 0 ? { background: "none", boxShadow: "0 0 6px red" } as React.CSSProperties: { background: 'none', },
+      })
+    })
+    const initialEdges: Edge[] = harenessEdges.filter(e => !edgesWithWjs.has(e)).map((e, i) => ({
+      id: `${e.a.title}--${e.b.title}`,
+      source: e.a.title,
+      target: e.b.title,
+      label: e.length,
+    }));
+    edgesWithWjs.forEach(e => {
+      initialEdges.push({
+        id: `${e.a.title}--${e.a.title}-wjs-${e.b.title}`,
+        source: e.a.title,
+        target: `${e.a.title}-wjs-${e.b.title}`,
+      })
+      initialEdges.push({
+        id: `${e.a.title}-wjs-${e.b.title}--${e.b.title}`,
+        source: `${e.a.title}-wjs-${e.b.title}`,
+        target: e.b.title,
+      })
+    })
+    
+
     const { nodes: layoutedNodes, edges: layoutedEdges } =
-      getLayoutedElements(nodes, edges, "LR");
+      getLayoutedElements(initialNodes, initialEdges, "LR");
 
     let netsNodes: Node[] = [];
     const netsEdges: Edge[] = [];
@@ -110,17 +147,23 @@ function App() {
           netNodes.push({
             id: node.title,
             //position: { x: netNodes.length * 200, y: i * -100 },
-            position: {x: 0, y: 0},
+            position: { x: 0, y: 0 },
             data: { label: node.title },
             parentId: node.attachment.title,
             type: 'terminal',
           })
         } else {
+          const wj = node as WireJoint;
+          let parentId: undefined | string = undefined;
+          if(wj.location) {
+            parentId = `${wj.location.a.title}-wjs-${wj.location.b.title}`;
+          }
           netNodes.push({
             id: node.title,
-            position: { x: netNodes.length * 200, y: i * -100 },
+            position: { x: 0,y: 0  },
             data: { label: node.title },
             type: node instanceof WireJoint ? 'wireJoint' : undefined,
+            parentId,
           })
         }
 
