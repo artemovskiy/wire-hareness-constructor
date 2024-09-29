@@ -70,7 +70,8 @@ export function EditorWorkspace({selectedNet, onPresentationChange, presentation
                 id: `${e.a.title}-wjs-${e.b.title}`,
                 position: { x: 0, y: 0 },
                 data: { label: "wjs" },
-                style: netHarnessNodes.indexOf(e.a as HarnessNode) >= 0 ? { background: "none", boxShadow: "0 0 6px red" } as React.CSSProperties : { background: 'none', },
+                // TODO: fix it. WJ hareness nodea are never highlighted now
+                style: false ? { background: "none", boxShadow: "0 0 6px red" } as React.CSSProperties : { background: 'none', },
             })
         })
         const initialEdges: Edge[] = harenessEdges.filter(e => !edgesWithWjs.has(e)).map((e, i) => ({

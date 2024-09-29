@@ -105,6 +105,30 @@ export const getDesign = (): Design => {
     wjsiggnd1.location = e1;
     sigGndWires.forEach(w => w.b = wjsiggnd1);
 
+    const switchedBat = new Net('switched-bat')
+    d.nets.push(switchedBat);
+
+    const mafPwr= new Terminal(xMAF);
+    switchedBat.terminals.push(mafPwr);
+    mafPwr.title = 'term-maf-pwr'
+    const mafPwrWire = new Wire('red/wht');
+    mafPwrWire.a = mafPwr;
+    mafPwr.wire = mafPwrWire;
+
+    const switchedBatteryRelay = new Terminal(xR1);
+    switchedBat.terminals.push(switchedBatteryRelay);
+    switchedBatteryRelay.title = "switched-battery-from-relay"
+    const switchedBatteryFromRelayWire = new Wire('red/wht')
+    switchedBatteryFromRelayWire.a = switchedBatteryRelay;
+    switchedBatteryRelay.wire = switchedBatteryFromRelayWire;
+
+    const wjSwitchedBattery1 = d.createWireJoint(switchedBat, 'wj2')
+    wjSwitchedBattery1.edges = [mafPwrWire,switchedBatteryFromRelayWire];
+    mafPwrWire.b = wjSwitchedBattery1;
+    switchedBatteryFromRelayWire.b = wjSwitchedBattery1;
+    wjSwitchedBattery1.location = e1;
+
+
     sigGround.root = sigGndECU;
 
     d.nets.push(sigGround);

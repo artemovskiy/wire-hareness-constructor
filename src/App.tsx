@@ -22,6 +22,8 @@ import '@xyflow/react/dist/style.css';
 import { getDesign } from './design';
 import { NodePresenteation } from './app/editor/types';
 import { Design } from './design/design';
+import { CssBaseline } from '@mui/material';
+import { NetList } from './components/NetList';
 
 
 
@@ -31,26 +33,26 @@ function App() {
   const [nodesPResentations, setNodesPresentations] = useState<NodePresenteation[]>([]);
 
   const [selectedNetName, setSelectedNetName] = useState<string | undefined>();
-  useEffect(() => {
-    console.log("design reinit")
-    setTimeout(() => setSelectedNetName(design.nets[0].name), 1000)
-  }, [design])
   const selectedNet = useMemo(() => selectedNetName ? design.nets.find(net => net.name === selectedNetName) : undefined, [selectedNetName, design])
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "20vw 80vw"}}>
-      <div style={{gridColumn: "1" }}>
+    <>
+      <CssBaseline />
+      <div style={{ display: "grid", gridTemplateColumns: "20vw 80vw" }}>
+        <div style={{ gridColumn: "1" }}>
+          <NetList nets={design.nets} onNetClear={()=> setSelectedNetName(undefined)} onNetSelect={(net)=> {setSelectedNetName(net)}} selectedNet={selectedNetName}/>
+        </div>
+        <div style={{ gridColumn: "2" }}>
+          <EditorWorkspace
+            design={design}
+            presentation={nodesPResentations}
+            onPresentationChange={setNodesPresentations}
+            selectedNet={selectedNet}
+          />
+        </div>
+      </div>
+    </>
 
-      </div>
-      <div style={{gridColumn: "2" }}>
-        <EditorWorkspace
-          design={design}
-          presentation={nodesPResentations}
-          onPresentationChange={setNodesPresentations}
-          selectedNet={selectedNet}
-        />
-      </div>
-    </div>
   );
 }
 
