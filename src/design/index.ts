@@ -75,7 +75,7 @@ export const getDesign = (): Design => {
     xR3.connectWith(f05).length = 15;
 
 
-    const sigGround = new Net();
+    const sigGround = new Net('sig-gnd');
     const sigGndTAIR = new Terminal(xTAIR);
     sigGround.terminals.push(sigGndTAIR);
     sigGndTAIR.title = `${xTAIR.title}-0`;

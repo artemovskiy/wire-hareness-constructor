@@ -17,7 +17,6 @@ export class Design {
 
     constructor(root: HarnessNode) {
         this.root = root;
-        console.log(getNodes(root));
     }
 
     collectNodes(): HarnessNode[] {
