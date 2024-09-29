@@ -3,6 +3,7 @@ import { Net } from "../../core/nets/net";
 import Grid2 from "@mui/material/Grid2";
 import { Box, IconButton, Typography } from "@mui/material";
 import ClearIcon from '@mui/icons-material/Clear';
+import { WireColorIcon } from "../WireColorIcon";
 
 export interface NetListProps {
     nets: Net[];
@@ -24,10 +25,14 @@ export const NetList = ({ nets, selectedNet, onNetClear, onNetSelect }: NetListP
             </Grid2>
         </Grid2>
         <ul>
-            {nets.map(n => <li key={n.name}><Typography
-                onClick={() => onNetSelect(n.name)}
-                style={{ textDecoration: n.name === selectedNet ? "underline" : undefined }}
-            >{n.name}</Typography></li>)}
+            {nets.map(n => <li key={n.name}>
+                <Typography
+                    onClick={() => onNetSelect(n.name)}
+                    style={{ textDecoration: n.name === selectedNet ? "underline" : undefined }}
+                >{n.name}</Typography>
+                { /* TODO: handle differet wire colors within the net */}
+                <WireColorIcon colorText={n.terminals[0].wire.color} />
+            </li>)}
         </ul>
     </Box>
 }
