@@ -1,159 +1,90 @@
-import { Connector } from "../core/harness/connector";
-import { Fork } from "../core/harness/fork";
-import { HarnessEdge } from "../core/harness/harness-edge";
-import { Net } from "../core/nets/net";
-import { Terminal } from "../core/nets/terminal";
-import { Wire } from "../core/nets/wire";
-import { WireJoint } from "../core/nets/wire-joint";
 import { Design } from "./design";
 
 export const getDesign = (): Design => {
-    const x01 = new Connector();
-    x01.title = "x01";
-    x01.numPins = 81;
+    const d = new Design();
 
-    const d = new Design(x01);
+    const x01 = d.elementsFactory.createConnector({
+        name: "x01",
+        maxPinsQty: 81,
+    })
 
-    const f1 = d.createFork();
+    const f1 = d.elementsFactory.createFork({})
     const e1 = f1.connectWith(x01);
     e1.length = 90;
 
-    const f2 = d.createFork();
+    const f2 = d.elementsFactory.createFork({})
     const e2 = f2.connectWith(f1);
     e2.length = 45;
 
-    const f3 = d.createFork();
+    const f3 = d.elementsFactory.createFork({})
     f3.connectWith(f2).length = 60;
 
-    const x016 = new Connector(); // crankshaft sens
-    x016.title = "x016";
-    x016.numPins = 3;
+    const x016 = d.elementsFactory.createConnector({ name: "x016", maxPinsQty: 3 })
     x016.descr = 'Crankshaft position sensor'
     x016.connectWith(f3);
 
-    const x020 = new Connector(); // camshaft sens
-    x020.title = "x020";
-    x020.numPins = 3;
+    const x020 = d.elementsFactory.createConnector({ name: "x020", maxPinsQty: 3 }) // camshaft sens
     x020.descr = 'Camshaft position sensor'
     x020.connectWith(f3);
 
 
-    const x013 = new Connector(); // TWAT sens
-    x013.title = "x013";
-    x013.numPins = 2;
+    const x013 = d.elementsFactory.createConnector({ name: "x013", maxPinsQty: 2 }) // TWAT sens
     x013.descr = "TWAT sensor"
     x013.connectWith(f3);
 
-    const x20 = new Connector();
-    x20.title = "x20";
-    x20.numPins = 25;
+    const x20 = d.elementsFactory.createConnector({ name: "x20", maxPinsQty: 25 });
     x20.descr = "to the body harness";
     x20.connectWith(f1);
 
-    const f4 = d.createFork();
+    const f4 = d.elementsFactory.createFork({})
     f4.connectWith(f1).length = 66;
 
-    const xTAIR = new Connector();
-    xTAIR.title = "TAIR"
+    const xTAIR = d.elementsFactory.createConnector({ name: "TAIR", maxPinsQty: 2 });
     xTAIR.connectWith(f4).length = 15;
 
-    const xMAF = new Connector();
-    xMAF.title = "MAF"
+    const xMAF = d.elementsFactory.createConnector({ name: "MAF", maxPinsQty: 5 });
     xMAF.connectWith(f4).length = 19;
 
-    const f05 = d.createFork();
+    const f05 = d.elementsFactory.createFork({});
     f05.connectWith(f1).length = 50;
 
-    const xR1 = new Connector();
-    xR1.title = 'relay 1';
+    const xR1 = d.elementsFactory.createConnector({ name: "K1", maxPinsQty: 5 });
     xR1.connectWith(f05).length = 15;
-    const xR2 = new Connector();
-    xR2.title = 'relay 2';
+    const xR2 = d.elementsFactory.createConnector({ name: "K2", maxPinsQty: 5 });
     xR2.connectWith(f05).length = 15;
-    const xR3 = new Connector();
-    xR3.title = 'relay 3';
+    const xR3 = d.elementsFactory.createConnector({ name: "K3", maxPinsQty: 5 });
     xR3.connectWith(f05).length = 15;
 
+    const sigGround = d.elementsFactory.createNet({ name: 'sig-gnd' });
 
-    const sigGround = new Net('sig-gnd');
-    const sigGndTAIR = new Terminal(xTAIR);
-    sigGround.terminals.push(sigGndTAIR);
-    sigGndTAIR.title = `${xTAIR.title}-0`;
-    const sigGndTAIRWire = new Wire('green');
-    sigGndTAIRWire.a = sigGndTAIR;
-    sigGndTAIR.wire = sigGndTAIRWire;
+    const sigGndTAIR = d.elementsFactory.createTerminal({ attachment: xTAIR, net: sigGround });
+    const sigGndTWAT = d.elementsFactory.createTerminal({ attachment: x013, net: sigGround });
+    const sigGndECU = d.elementsFactory.createTerminal({ attachment: x01, net: sigGround });
+    const wjsiggnd1 = d.elementsFactory.createWireJunction({ location: e1 });
 
-    const sigGndTWAT = new Terminal(x013);
-    sigGround.terminals.push(sigGndTWAT);
-    sigGndTWAT.title = `${x013.title}-0`;
-    const sigGndTWATWire = new Wire('green');
-    sigGndTWATWire.a = sigGndTWAT;
-    sigGndTWAT.wire = sigGndTWATWire;
 
-    const sigGndECU = new Terminal(x01);
-    sigGround.terminals.push(sigGndECU);
-    sigGndECU.title = `${x01.title}-0`;
-    const sigGndEcuWire = new Wire('green');
-    sigGndEcuWire.a = sigGndECU;
-    sigGndECU.wire = sigGndEcuWire;
-
-    console.log(sigGndECU);
-
-    const sigGndWires = [sigGndTAIR.wire, sigGndTWAT.wire, sigGndECU.wire];
-    const wjsiggnd1 = d.createWireJoint(sigGround, 'wj1');
-    wjsiggnd1.edges = sigGndWires;
-    wjsiggnd1.location = e1;
-    sigGndWires.forEach(w => w.b = wjsiggnd1);
-
-    const switchedBat = new Net('switched-bat')
-    d.nets.push(switchedBat);
-
-    const mafPwr = new Terminal(xMAF);
-    switchedBat.terminals.push(mafPwr);
-    mafPwr.title = 'term-maf-pwr'
-    const mafPwrWire = new Wire('red/wht');
-    mafPwrWire.a = mafPwr;
-    mafPwr.wire = mafPwrWire;
-
-    const switchedBatteryRelay = new Terminal(xR1);
-    switchedBat.terminals.push(switchedBatteryRelay);
-    switchedBatteryRelay.title = "switched-battery-from-relay"
-    const switchedBatteryFromRelayWire = new Wire('red/wht')
-    switchedBatteryFromRelayWire.a = switchedBatteryRelay;
-    switchedBatteryRelay.wire = switchedBatteryFromRelayWire;
-
-    const wjSwitchedBattery1 = d.createWireJoint(switchedBat, 'wj2')
-    wjSwitchedBattery1.edges = [mafPwrWire, switchedBatteryFromRelayWire];
-    mafPwrWire.b = wjSwitchedBattery1;
-    switchedBatteryFromRelayWire.b = wjSwitchedBattery1;
-    wjSwitchedBattery1.location = e1;
-
-    const commonGnd = new Net('common-gnd');
-    d.nets.push(commonGnd);
-
-    const mafGnd = new Terminal(xMAF)
-    mafGnd.title = 'maf-gnd'
-    commonGnd.terminals.push(mafGnd);
-    const mafGndWire = new Wire('brn/org')
-    mafGndWire.a = mafGnd;
-    mafGnd.wire = mafGndWire;
-
-    const ecuCGnd1 = new Terminal(x01);
-    ecuCGnd1.title = "ecu-cgnd-1";
-    commonGnd.terminals.push(ecuCGnd1);
-    const ecuCgnd1Wire = new Wire('brn')
-    ecuCgnd1Wire.a = ecuCGnd1;
-    ecuCGnd1.wire = ecuCgnd1Wire;
-
-    const wjCommongGnd1 = d.createWireJoint(commonGnd, 'wj3');
-    wjCommongGnd1.edges = [ecuCgnd1Wire, mafGndWire]
-    ecuCgnd1Wire.b = wjCommongGnd1;
-    mafGndWire.b = wjCommongGnd1;
-    wjCommongGnd1.location = e1;
-
+    const sigGndTAIRWire = d.elementsFactory.createWire({ color: 'green', from: wjsiggnd1, to: sigGndTAIR})
+    const sigGndTWATWire = d.elementsFactory.createWire({ color: 'green', from: wjsiggnd1, to: sigGndTWAT})
+    const sigGndEcuWire = d.elementsFactory.createWire({ color: 'green', from: sigGndECU, to: wjsiggnd1})
     sigGround.root = sigGndECU;
 
-    d.nets.push(sigGround);
+    const switchedBat = d.elementsFactory.createNet({ name: 'switched-bat' });
+
+    const mafPwr = d.elementsFactory.createTerminal({ attachment: xMAF, net: switchedBat });
+    const switchedBatteryRelay =  d.elementsFactory.createTerminal({ attachment: xR1, net: switchedBat });
+    const wjSwitchedBattery1 = d.elementsFactory.createWireJunction({ location: e1 });
+
+    d.elementsFactory.createWire({ color: 'red/wht', from: wjSwitchedBattery1, to: mafPwr})
+    d.elementsFactory.createWire({ color: 'red/wht', from: wjSwitchedBattery1, to: switchedBatteryRelay})
+
+    const commonGnd = d.elementsFactory.createNet({ name: 'common-gnd' });
+
+    const mafGnd = d.elementsFactory.createTerminal({ attachment: xMAF, net: commonGnd })
+    const ecuCGND1 = d.elementsFactory.createTerminal({ attachment: x01, net: commonGnd })
+    const wjCommongGnd1 = d.elementsFactory.createWireJunction({ location: e1 });
+
+    d.elementsFactory.createWire({ color: 'brn/org', from: wjCommongGnd1, to: mafGnd});
+    d.elementsFactory.createWire({ color: 'brn', from: ecuCGND1, to: wjCommongGnd1});
 
     return d;
 }

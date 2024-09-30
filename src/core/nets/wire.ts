@@ -4,8 +4,11 @@ export class Wire extends Edge {
 
     color: string;
 
-    constructor(color: string) {
+    name: string;
+
+    constructor(color: string, name: string) {
         super()
         this.color = color;
+        this.name = name;
     }
 }

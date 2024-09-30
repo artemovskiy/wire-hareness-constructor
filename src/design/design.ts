@@ -6,17 +6,27 @@ import { HarnessNode } from "../core/harness/harness-node";
 import { Net } from "../core/nets/net";
 import { Terminal } from "../core/nets/terminal";
 import { WireJoint } from "../core/nets/wire-joint";
+import { ElementFactory } from "./element-factory";
+import { ElementsCollection } from "./elements-collection";
 import { NameAssginer } from "./name-assigner";
 
 export class Design {
-    root: HarnessNode;
+    get root(): HarnessNode {
+        const connectors = this.elementsCollection.all<Connector>(Connector);
+        return connectors[0];
+    };
 
-    nameAssginer = new NameAssginer();
+    private readonly elementsCollection = new ElementsCollection();
+    private readonly nameAssginer = new NameAssginer();
 
-    nets: Net[] = [];
+    public readonly elementsFactory: ElementFactory;
 
-    constructor(root: HarnessNode) {
-        this.root = root;
+    constructor() {
+        this.elementsFactory = new ElementFactory(this.elementsCollection, this.nameAssginer);
+    }
+
+    get nets(): Net[] {
+        return this.elementsCollection.all<Net>(Net) as Net[];
     }
 
     collectNodes(): HarnessNode[] {
@@ -31,23 +41,7 @@ export class Design {
         return Array.from(edges.values());
     }
 
-    wireJoints: WireJoint[] = [];
-
-    createWireJoint(net: Net, name: string): WireJoint {
-        const wj = new WireJoint();
-        wj.title = name;
-        this.wireJoints.push(wj)
-        return wj;
-    }
-
-    createTerminal(name: string, net: Net, attachment: Connector): Terminal {
-        const terminal = new Terminal(attachment);
-        net.terminals.push();
-        return terminal;
-    }
-
-    createFork(): Fork {
-        const name = this.nameAssginer.getName(Fork);
-        return Fork.withTitle(name) as Fork;
+    get wireJoints(): WireJoint[]{
+        return this.elementsCollection.all(WireJoint) as WireJoint[];
     }
 }

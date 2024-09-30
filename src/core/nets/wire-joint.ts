@@ -5,7 +5,7 @@ import { WireNode } from "./wire-node";
 export class WireJoint extends WireNode {
     location?: HarnessEdge;
 
-    constructor() {
-        super();
+    constructor(name: string) {
+        super(name);
     }
 }

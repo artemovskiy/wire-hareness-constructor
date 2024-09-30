@@ -1,0 +1,1 @@
+export type Constructor<IType> = new (...args: any[]) => IType;

@@ -1,0 +1,120 @@
+import { Terminal } from "../core/nets/terminal";
+import { WireJoint } from "../core/nets/wire-joint";
+import { Connector } from "../core/harness/connector";
+import { Fork } from "../core/harness/fork";
+import { HarnessEdge } from "../core/harness/harness-edge";
+import { ElementsCollection } from "./elements-collection";
+import { NameAssginer } from "./name-assigner";
+import { Wire } from "../core/nets/wire";
+import { Net } from "../core/nets/net";
+import { WireNode } from "../core/nets/wire-node";
+
+export interface BaseElementParam {
+    name?: string;
+    description?: string;
+}
+
+export interface ConnectorParams extends BaseElementParam {
+    maxPinsQty: number;
+}
+
+export interface ForkParams extends BaseElementParam { }
+
+export interface EdgeParams extends BaseElementParam {
+    length: number;
+}
+
+export interface TerminalParams extends BaseElementParam {
+    attachment: Connector;
+    net: Net;
+}
+
+export interface WireJunctionParams extends BaseElementParam {
+    location: HarnessEdge;
+}
+
+export interface WireParams extends BaseElementParam {
+    color: string;
+
+    from?: WireNode;
+    to?: WireNode;
+}
+
+export interface NetParams extends BaseElementParam { }
+
+export class ElementFactory {
+
+    constructor(
+        private readonly elementsCollection: ElementsCollection,
+        private readonly nameAssginer: NameAssginer,
+    ) {
+
+    }
+
+    createConnector(params: ConnectorParams): Connector {
+        const name = params.name ?? this.nameAssginer.createNameFor(Connector);
+        const connector = new Connector(name);
+        connector.numPins = params.maxPinsQty;
+        this.elementsCollection.put(Connector, connector);
+        return connector;
+    }
+
+    createFork(params: ForkParams): Fork {
+        const name = params.name ?? this.nameAssginer.createNameFor(Fork);
+        const fork = new Fork(name);
+        this.elementsCollection.put(Fork, fork);
+        return fork;
+
+    }
+
+    createEdge(params: EdgeParams): HarnessEdge {
+        const name = params.name ?? this.nameAssginer.createNameFor(HarnessEdge);
+        const el = new HarnessEdge(name);
+        this.elementsCollection.put(HarnessEdge, el);
+        return el;
+    }
+
+    createTerminal(params: TerminalParams): Terminal {
+        const name = params.name ?? this.nameAssginer.createNameFor(Terminal);
+        const el = new Terminal(name, params.attachment);
+        this.elementsCollection.put(Terminal, el);
+
+        params.net.terminals.push(el);
+
+        return el;
+    }
+
+    createWireJunction(params: WireJunctionParams): WireJoint {
+        const name = params.name ?? this.nameAssginer.createNameFor(WireJoint);
+        const el = new WireJoint(name);
+        el.location = params.location;
+        this.elementsCollection.put(WireJoint, el);
+        return el;
+    }
+
+    createWire(params: WireParams): Wire {
+        const name = params.name ?? this.nameAssginer.createNameFor(Wire)
+        const el = new Wire(params.color, name);
+        this.elementsCollection.put(Wire, el);
+
+        // TODO: check for ability to connect, check nets and graph cycles
+        if (params.from) {
+            el.a = params.from;
+            params.from.edges.push(el);
+        }
+
+        if (params.to) {
+            el.b = params.to;
+            params.to.edges.push(el);
+        }
+
+        return el;
+    }
+
+    createNet(params: NetParams): Net {
+        const name = params.name ?? this.nameAssginer.createNameFor(Net)
+        const el = new Net(name);
+        this.elementsCollection.put(Net, el);
+        return el;
+    }
+}

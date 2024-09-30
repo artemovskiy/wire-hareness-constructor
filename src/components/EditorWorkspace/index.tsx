@@ -59,11 +59,13 @@ export function EditorWorkspace({ selectedNet, onPresentationChange, presentatio
     const [edges, setEdges] = useState<Edge[]>([]);
 
     const netHarnessNodes = selectedNet?.listInvolvedHarnessNodes() ?? [];
-    console.log(netHarnessNodes)
-    console.log(design.collectNodes().map(n => ({ name: n.title, r: netHarnessNodes.indexOf(n) })))
+    // console.log(netHarnessNodes)
+    // console.log(design.collectNodes().map(n => ({ name: n.name, r: netHarnessNodes.indexOf(n) })))
 
     const { initialNodes, initialEdges } = useMemo(() => {
-        const initialNodes: Node[] = design.collectNodes().map((n, i) => {
+        const nodes = design.collectNodes();
+        console.log(nodes);
+        const initialNodes: Node[] = nodes.map((n, i) => {
             if (n instanceof Connector) {
                 const termToNet = new Map<Terminal, Net>();
                 const connectorTerminals: Terminal[] = [];
@@ -76,17 +78,17 @@ export function EditorWorkspace({ selectedNet, onPresentationChange, presentatio
                     }
                 }
                 return {
-                    id: n.title,
+                    id: n.name,
                     type: 'connector',
                     position: { x: 0, y: 0 },
                     data: {
-                        label: !n.descr ? n.title : `${n.title} (${n.descr})`,
+                        label: !n.descr ? n.name : `${n.name} (${n.descr})`,
                         terminals: connectorTerminals.map(((t, i) => {
                             const net = termToNet.get(t)
                             return {
                                 position: i + 1,
                                 color: t.wire.color,
-                                name: t.title,
+                                name: t.name,
                                 netName: net?.name,
                              } as TerminalDef;   
                         }))
@@ -96,16 +98,16 @@ export function EditorWorkspace({ selectedNet, onPresentationChange, presentatio
 
             } else {
                 return {
-                    id: n.title,
+                    id: n.name,
                     position: { x: 0, y: 0 },
-                    data: { label: !n.descr ? n.title : `${n.title} (${n.descr})` },
+                    data: { label: !n.descr ? n.name : `${n.name} (${n.descr})` },
                     style: netHarnessNodes.indexOf(n) >= 0 ? { background: "none", boxShadow: "0 0 6px red" } as React.CSSProperties : { background: 'none', },
                 }
             }
         });
         edgesWithWjs.forEach(e => {
             initialNodes.push({
-                id: `${e.a.title}-wjs-${e.b.title}`,
+                id: `${(e.a as HarnessNode).name}-wjs-${(e.b as HarnessNode).name}`,
                 position: { x: 0, y: 0 },
                 data: { label: "wjs" },
                 // TODO: fix it. WJ hareness nodea are never highlighted now
@@ -113,21 +115,21 @@ export function EditorWorkspace({ selectedNet, onPresentationChange, presentatio
             })
         })
         const initialEdges: Edge[] = harenessEdges.filter(e => !edgesWithWjs.has(e)).map((e, i) => ({
-            id: `${e.a.title}--${e.b.title}`,
-            source: e.a.title,
-            target: e.b.title,
+            id: `${(e.a as HarnessNode).name}--${(e.b as HarnessNode).name}`,
+            source:(e.a as HarnessNode).name,
+            target: (e.b as HarnessNode).name,
             label: e.length,
         }));
         edgesWithWjs.forEach(e => {
             initialEdges.push({
-                id: `${e.a.title}--${e.a.title}-wjs-${e.b.title}`,
-                source: e.a.title,
-                target: `${e.a.title}-wjs-${e.b.title}`,
+                id: `${(e.a as HarnessNode).name}--${(e.a as HarnessNode).name}-wjs-${(e.b as HarnessNode).name}`,
+                source: (e.a as HarnessNode).name,
+                target: `${(e.a as HarnessNode).name}-wjs-${(e.b as HarnessNode).name}`,
             })
             initialEdges.push({
-                id: `${e.a.title}-wjs-${e.b.title}--${e.b.title}`,
-                source: `${e.a.title}-wjs-${e.b.title}`,
-                target: e.b.title,
+                id: `${(e.a as HarnessNode).name}-wjs-${(e.b as HarnessNode).name}--${(e.b as HarnessNode).name}`,
+                source: `${(e.a as HarnessNode).name}-wjs-${(e.b as HarnessNode).name}`,
+                target: (e.b as HarnessNode).name,
             })
         })
 

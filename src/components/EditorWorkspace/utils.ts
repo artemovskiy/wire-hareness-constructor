@@ -8,6 +8,8 @@ import { Terminal } from "../../core/nets/terminal";
 import { NODE_HEIGHT, NODE_WIDTH } from "./constants";
 import { NodePresenteation } from "../../app/editor/types";
 import dagre from '@dagrejs/dagre';
+import { HarnessNode } from "../../core/harness/harness-node";
+import { HarnessEdge } from "../../core/harness/harness-edge";
 
 export const buildNetNodesEdges = (net: Net) => {
     const netNodes: Node[] = [];
@@ -16,36 +18,37 @@ export const buildNetNodesEdges = (net: Net) => {
     walkOverNodes(net.root as WireNode, node => {
         if (node instanceof Terminal) {
             netNodes.push({
-                id: node.title,
+                id: node.name,
                 position: { x: 0, y: 0 },
-                data: { label: node.title },
-                parentId: node.attachment.title,
+                data: { label: node.name },
+                parentId: node.attachment.name,
                 type: 'terminal',
             })
         } else {
             const wj = node as WireJoint;
             let parentId: undefined | string = undefined;
             if (wj.location) {
-                parentId = `${wj.location.a.title}-wjs-${wj.location.b.title}`;
+                parentId = `${(wj.location.a as HarnessNode).name}-wjs-${(wj.location.b as HarnessNode).name}`;
             }
             netNodes.push({
-                id: node.title,
+                id: wj.name,
                 position: { x: 0, y: 0 },
-                data: { label: node.title },
+                data: { label: wj.name },
                 type: node instanceof WireJoint ? 'wireJoint' : undefined,
                 parentId,
             })
         }
 
         node.edges.forEach(e => {
-            if (netEdges.has(e as Wire)) {
+            const wire = e as Wire;
+            if (netEdges.has(wire)) {
                 return
             }
             netEdges.add(e as Wire);
             netsEdges.push({
-                id: `${e.a.title}--${e.b.title}`,
-                source: e.a.title,
-                target: e.b.title,
+                id: `${(wire.a as WireNode).name}--${(wire.b as WireNode).name}`,
+                source: (wire.a as WireNode).name,
+                target: (wire.b as WireNode).name,
                 style: {
                     stroke: (e as Wire).color,
                 }

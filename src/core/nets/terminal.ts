@@ -17,8 +17,8 @@ export class Terminal extends WireNode {
         return this.edges[0] as Wire;
     }
 
-    constructor(attachment: Connector) {
-        super();
+    constructor(name: string, attachment: Connector) {
+        super(name);
         this.attachment = attachment;
     }
 
