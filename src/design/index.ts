@@ -95,7 +95,7 @@ export const getDesign = (): Design => {
     sigGndECU.title = `${x01.title}-0`;
     const sigGndEcuWire = new Wire('green');
     sigGndEcuWire.a = sigGndECU;
-    sigGndECU.wire = sigGndEcuWire; 
+    sigGndECU.wire = sigGndEcuWire;
 
     console.log(sigGndECU);
 
@@ -108,7 +108,7 @@ export const getDesign = (): Design => {
     const switchedBat = new Net('switched-bat')
     d.nets.push(switchedBat);
 
-    const mafPwr= new Terminal(xMAF);
+    const mafPwr = new Terminal(xMAF);
     switchedBat.terminals.push(mafPwr);
     mafPwr.title = 'term-maf-pwr'
     const mafPwrWire = new Wire('red/wht');
@@ -123,11 +123,33 @@ export const getDesign = (): Design => {
     switchedBatteryRelay.wire = switchedBatteryFromRelayWire;
 
     const wjSwitchedBattery1 = d.createWireJoint(switchedBat, 'wj2')
-    wjSwitchedBattery1.edges = [mafPwrWire,switchedBatteryFromRelayWire];
+    wjSwitchedBattery1.edges = [mafPwrWire, switchedBatteryFromRelayWire];
     mafPwrWire.b = wjSwitchedBattery1;
     switchedBatteryFromRelayWire.b = wjSwitchedBattery1;
     wjSwitchedBattery1.location = e1;
 
+    const commonGnd = new Net('common-gnd');
+    d.nets.push(commonGnd);
+
+    const mafGnd = new Terminal(xMAF)
+    mafGnd.title = 'maf-gnd'
+    commonGnd.terminals.push(mafGnd);
+    const mafGndWire = new Wire('brn/org')
+    mafGndWire.a = mafGnd;
+    mafGnd.wire = mafGndWire;
+
+    const ecuCGnd1 = new Terminal(x01);
+    ecuCGnd1.title = "ecu-cgnd-1";
+    commonGnd.terminals.push(ecuCGnd1);
+    const ecuCgnd1Wire = new Wire('brn')
+    ecuCgnd1Wire.a = ecuCGnd1;
+    ecuCGnd1.wire = ecuCgnd1Wire;
+
+    const wjCommongGnd1 = d.createWireJoint(commonGnd, 'wj3');
+    wjCommongGnd1.edges = [ecuCgnd1Wire, mafGndWire]
+    ecuCgnd1Wire.b = wjCommongGnd1;
+    mafGndWire.b = wjCommongGnd1;
+    wjCommongGnd1.location = e1;
 
     sigGround.root = sigGndECU;
 

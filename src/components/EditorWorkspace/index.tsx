@@ -24,9 +24,12 @@ import { getDesign } from '../../design';
 import { HarnessEdge } from '../../core/harness/harness-edge';
 import { HarnessNode } from '../../core/harness/harness-node';
 import { Design } from '../../design/design';
-import { NodePresenteation } from '../../app/editor/types';
+import { NodePresenteation, TerminalDef } from '../../app/editor/types';
 import { applyNodesPosition, initNodePresentation } from './utils';
 import { Net } from '../../core/nets/net';
+import { ConnectorNode } from '../ConnectorNode';
+import { Connector } from '../../core/harness/connector';
+import { Terminal } from '../../core/nets/terminal';
 
 const design = getDesign();
 const harenessEdges = design.collectEdges();
@@ -48,23 +51,58 @@ export interface EditorWorspaceProps {
 const nodeTypes = {
     wireJoint: WireJointNode,
     terminal: TerminalNode,
+    connector: ConnectorNode,
 };
 
-export function EditorWorkspace({selectedNet, onPresentationChange, presentation, design}: EditorWorspaceProps) {
+export function EditorWorkspace({ selectedNet, onPresentationChange, presentation, design }: EditorWorspaceProps) {
     const [nodes, setNodes] = useState<Node[]>([]);
     const [edges, setEdges] = useState<Edge[]>([]);
 
     const netHarnessNodes = selectedNet?.listInvolvedHarnessNodes() ?? [];
     console.log(netHarnessNodes)
-    console.log(design.collectNodes().map(n => ({ name: n.title, r:  netHarnessNodes.indexOf(n)})))
+    console.log(design.collectNodes().map(n => ({ name: n.title, r: netHarnessNodes.indexOf(n) })))
 
-    const  { initialNodes, initialEdges } = useMemo(() => {
-        const initialNodes: Node[] = design.collectNodes().map((n, i) => ({
-            id: n.title,
-            position: { x: 0, y: 0 },
-            data: { label: !n.descr ? n.title : `${n.title} (${n.descr})` },
-            style: netHarnessNodes.indexOf(n) >= 0 ? { background: "none", boxShadow: "0 0 6px red" } as React.CSSProperties : { background: 'none', },
-        }));
+    const { initialNodes, initialEdges } = useMemo(() => {
+        const initialNodes: Node[] = design.collectNodes().map((n, i) => {
+            if (n instanceof Connector) {
+                const termToNet = new Map<Terminal, Net>();
+                const connectorTerminals: Terminal[] = [];
+                for (const net of design.nets) {
+                    for(const terminal of net.terminals) {
+                        if(terminal.attachment === n) {
+                            connectorTerminals.push(terminal);
+                            termToNet.set(terminal, net);
+                        }
+                    }
+                }
+                return {
+                    id: n.title,
+                    type: 'connector',
+                    position: { x: 0, y: 0 },
+                    data: {
+                        label: !n.descr ? n.title : `${n.title} (${n.descr})`,
+                        terminals: connectorTerminals.map(((t, i) => {
+                            const net = termToNet.get(t)
+                            return {
+                                position: i + 1,
+                                color: t.wire.color,
+                                name: t.title,
+                                netName: net?.name,
+                             } as TerminalDef;   
+                        }))
+                    },
+                    style: netHarnessNodes.indexOf(n) >= 0 ? { background: "none", boxShadow: "0 0 6px red" } as React.CSSProperties : { background: 'none', },
+                }
+
+            } else {
+                return {
+                    id: n.title,
+                    position: { x: 0, y: 0 },
+                    data: { label: !n.descr ? n.title : `${n.title} (${n.descr})` },
+                    style: netHarnessNodes.indexOf(n) >= 0 ? { background: "none", boxShadow: "0 0 6px red" } as React.CSSProperties : { background: 'none', },
+                }
+            }
+        });
         edgesWithWjs.forEach(e => {
             initialNodes.push({
                 id: `${e.a.title}-wjs-${e.b.title}`,
@@ -94,17 +132,17 @@ export function EditorWorkspace({selectedNet, onPresentationChange, presentation
         })
 
 
-        return {initialNodes, initialEdges}
+        return { initialNodes, initialEdges }
     }, [design, selectedNet])
 
     useEffect(() => {
-        if(!presentation?.length) {
+        if (!presentation?.length) {
             onPresentationChange(initNodePresentation(initialNodes, initialEdges))
         }
     }, [])
 
     useEffect(() => {
-        if(presentation?.length) {
+        if (presentation?.length) {
             setNodes(applyNodesPosition(initialNodes, presentation));
             setEdges(initialEdges);
         }

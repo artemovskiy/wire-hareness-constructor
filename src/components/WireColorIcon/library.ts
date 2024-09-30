@@ -13,6 +13,14 @@ export const colors: ColorDef[] = [
         primaryName: 'white',
         aliases: ['wht'],
         hexValue: "ffffff"
+    },{
+        primaryName: 'brown',
+        aliases: ['brn'],
+        hexValue: "762600"
+    },{
+        primaryName: 'orange',
+        aliases: ['org'],
+        hexValue: "FA840E"
     },
 ]
 
