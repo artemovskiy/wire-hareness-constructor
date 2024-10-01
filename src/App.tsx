@@ -25,12 +25,48 @@ import { Design } from './design/design';
 import { CssBaseline } from '@mui/material';
 import { NetList } from './components/NetList';
 
+function debounce<TArgs extends any[]>(callee: (...args: TArgs) => void, timeoutMs: number) {
+  let lastCall: number | undefined;
+  let lastCallTimer: NodeJS.Timeout;
+  return function perform(...args: TArgs) {
+    let previousCall = lastCall
 
+    lastCall = Date.now()
 
+    if (previousCall && (lastCall - previousCall <= timeoutMs)) {
+      clearTimeout(lastCallTimer)
+    }
+
+    lastCallTimer = setTimeout(() => callee(...args), timeoutMs)
+  }
+}
+
+const debouncedSavePres = debounce((val: NodePresenteation[]) => {
+  console.log("arrangement saved")
+  window.localStorage.setItem('items_resentation', JSON.stringify(val));
+}, 1000)
+
+const initalItemsPresentationContent = window.localStorage.getItem('items_resentation');
+  let initalItemsPresentation: NodePresenteation[] = [];
+  if(initalItemsPresentationContent) {
+    initalItemsPresentation = JSON.parse(initalItemsPresentationContent);
+  }
+  console.log({ initalItemsPresentation})
 
 function App() {
   const [design, setDesign] = useState<Design>(getDesign());
-  const [nodesPResentations, setNodesPresentations] = useState<NodePresenteation[]>([]);
+  
+  const [nodesPresentations, setNodesPresentations] = useState<NodePresenteation[]>(initalItemsPresentation);
+
+  useEffect(() => {
+    
+  }, [nodesPresentations]);
+
+  const onPresentationChange = useCallback((val: NodePresenteation[]) => {
+    console.log('change pres', val)
+    setNodesPresentations(val);
+    debouncedSavePres(val);
+  }, []);
 
   const [selectedNetName, setSelectedNetName] = useState<string | undefined>();
   const selectedNet = useMemo(() => selectedNetName ? design.nets.find(net => net.name === selectedNetName) : undefined, [selectedNetName, design])
@@ -45,8 +81,8 @@ function App() {
         <div style={{ gridColumn: "2" }}>
           <EditorWorkspace
             design={design}
-            presentation={nodesPResentations}
-            onPresentationChange={setNodesPresentations}
+            presentation={nodesPresentations}
+            onPresentationChange={onPresentationChange}
             selectedNet={selectedNet}
           />
         </div>

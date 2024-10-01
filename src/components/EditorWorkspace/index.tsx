@@ -11,6 +11,7 @@ import {
     Connection,
     Position,
     ViewportPortal,
+    NodePositionChange,
 } from '@xyflow/react';
 
 import { useState, useCallback } from 'react';
@@ -73,8 +74,8 @@ export function EditorWorkspace({ selectedNet, onPresentationChange, presentatio
                 const termToNet = new Map<Terminal, Net>();
                 const connectorTerminals: Terminal[] = [];
                 for (const net of design.nets) {
-                    for(const terminal of net.terminals) {
-                        if(terminal.attachment === n) {
+                    for (const terminal of net.terminals) {
+                        if (terminal.attachment === n) {
                             connectorTerminals.push(terminal);
                             termToNet.set(terminal, net);
                         }
@@ -93,7 +94,7 @@ export function EditorWorkspace({ selectedNet, onPresentationChange, presentatio
                                 color: t.wire.color,
                                 name: t.name,
                                 netName: net?.name,
-                             } as TerminalDef;   
+                            } as TerminalDef;
                         }))
                     },
                     style: netHarnessNodes.indexOf(n) >= 0 ? { background: "none", boxShadow: "0 0 6px red" } as React.CSSProperties : { background: 'none', },
@@ -121,7 +122,7 @@ export function EditorWorkspace({ selectedNet, onPresentationChange, presentatio
         })
         const initialEdges: Edge[] = harenessEdges.filter(e => !edgesWithWjs.has(e)).map((e, i) => ({
             id: `${(e.a as HarnessNode).name}--${(e.b as HarnessNode).name}`,
-            source:(e.a as HarnessNode).name,
+            source: (e.a as HarnessNode).name,
             target: (e.b as HarnessNode).name,
             label: e.length,
         }));
@@ -156,8 +157,36 @@ export function EditorWorkspace({ selectedNet, onPresentationChange, presentatio
     }, [presentation, initialNodes, initialEdges]);
 
     const onNodesChange: OnNodesChange = useCallback(
-        (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
-        [],
+        (changes) => {
+            const positionChanges = changes.filter(i => i.type === 'position');
+            const otherChanges = changes.filter(i => i.type !== 'position');
+            setNodes((nds) => {
+                return applyNodeChanges(otherChanges, nds)
+            });
+            for (const c of positionChanges) {
+                const positionChange = c as NodePositionChange;
+                console.log({ positionChange});
+                if(!positionChange.position) {
+                    continue;
+                }
+                if(Number.isNaN(positionChange.position.x) || Number.isNaN(positionChange.position.x)) {
+                    console.warn("got nan in position change", positionChange);
+                    continue;
+                }
+                const index = presentation.findIndex(p => p.nodeId === positionChange.id);
+                if(index < 0) {
+                    throw new Error("index not found for id: " + positionChange.id);
+                }
+                const currentVal = presentation[index];
+                const newPres = [...presentation];
+                newPres[index] = {
+                    ...currentVal,
+                    position: positionChange.position,
+                }
+                onPresentationChange(newPres);
+           }
+        },
+        [presentation],
     );
     const onEdgesChange: OnEdgesChange = useCallback(
         (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
