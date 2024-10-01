@@ -30,6 +30,8 @@ import { Net } from '../../core/nets/net';
 import { ConnectorNode } from '../ConnectorNode';
 import { Connector } from '../../core/harness/connector';
 import { Terminal } from '../../core/nets/terminal';
+import { ForkNode } from '../ForkNode';
+import { Fork } from '../../core/harness/fork';
 
 const design = getDesign();
 const harenessEdges = design.collectEdges();
@@ -52,6 +54,7 @@ const nodeTypes = {
     wireJoint: WireJointNode,
     terminal: TerminalNode,
     connector: ConnectorNode,
+    fork: ForkNode,
 };
 
 export function EditorWorkspace({ selectedNet, onPresentationChange, presentation, design }: EditorWorspaceProps) {
@@ -99,6 +102,7 @@ export function EditorWorkspace({ selectedNet, onPresentationChange, presentatio
             } else {
                 return {
                     id: n.name,
+                    type: n instanceof Fork ? 'fork' : undefined,
                     position: { x: 0, y: 0 },
                     data: { label: !n.descr ? n.name : `${n.name} (${n.descr})` },
                     style: netHarnessNodes.indexOf(n) >= 0 ? { background: "none", boxShadow: "0 0 6px red" } as React.CSSProperties : { background: 'none', },
@@ -108,6 +112,7 @@ export function EditorWorkspace({ selectedNet, onPresentationChange, presentatio
         edgesWithWjs.forEach(e => {
             initialNodes.push({
                 id: `${(e.a as HarnessNode).name}-wjs-${(e.b as HarnessNode).name}`,
+                type: 'fork', // TODO: this is a DIRTy hack, need a separate component for wire junction
                 position: { x: 0, y: 0 },
                 data: { label: "wjs" },
                 // TODO: fix it. WJ hareness nodea are never highlighted now
