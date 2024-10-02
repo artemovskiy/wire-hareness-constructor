@@ -21,16 +21,16 @@ export const getDesign = (): Design => {
 
     const x016 = d.elementsFactory.createConnector({ name: "x016", maxPinsQty: 3 })
     x016.descr = 'Crankshaft position sensor'
-    x016.connectWith(f3);
+    x016.connectWith(f3). length = 15;
 
     const x020 = d.elementsFactory.createConnector({ name: "x020", maxPinsQty: 3 }) // camshaft sens
     x020.descr = 'Camshaft position sensor'
-    x020.connectWith(f3);
+    x020.connectWith(f3).length = 10;
 
 
     const x013 = d.elementsFactory.createConnector({ name: "x013", maxPinsQty: 2 }) // TWAT sens
     x013.descr = "TWAT sensor"
-    x013.connectWith(f3);
+    x013.connectWith(f3).length = 10;
 
     const x20 = d.elementsFactory.createConnector({ name: "x20", maxPinsQty: 25 });
     x20.descr = "to the body harness";
@@ -60,31 +60,35 @@ export const getDesign = (): Design => {
     const sigGndTAIR = d.elementsFactory.createTerminal({ attachment: xTAIR, net: sigGround });
     const sigGndTWAT = d.elementsFactory.createTerminal({ attachment: x013, net: sigGround });
     const sigGndECU = d.elementsFactory.createTerminal({ attachment: x01, net: sigGround });
-    const wjsiggnd1 = d.elementsFactory.createWireJunction({ location: e1 });
+    const wjsiggnd1 = d.elementsFactory.createWireJunction({ location: e1, position: 10 });
 
 
-    const sigGndTAIRWire = d.elementsFactory.createWire({ color: 'green', from: wjsiggnd1, to: sigGndTAIR})
-    const sigGndTWATWire = d.elementsFactory.createWire({ color: 'green', from: wjsiggnd1, to: sigGndTWAT})
-    const sigGndEcuWire = d.elementsFactory.createWire({ color: 'green', from: sigGndECU, to: wjsiggnd1})
+    const sigGndTAIRWire = d.elementsFactory.createWire({ color: 'green', from: wjsiggnd1, to: sigGndTAIR })
+    const sigGndTWATWire = d.elementsFactory.createWire({ color: 'green', from: wjsiggnd1, to: sigGndTWAT })
+    const sigGndEcuWire = d.elementsFactory.createWire({ color: 'green', from: sigGndECU, to: wjsiggnd1 })
     sigGround.root = sigGndECU;
 
     const switchedBat = d.elementsFactory.createNet({ name: 'switched-bat' });
 
     const mafPwr = d.elementsFactory.createTerminal({ attachment: xMAF, net: switchedBat });
-    const switchedBatteryRelay =  d.elementsFactory.createTerminal({ attachment: xR1, net: switchedBat });
-    const wjSwitchedBattery1 = d.elementsFactory.createWireJunction({ location: e1 });
+    const switchedBatteryRelay = d.elementsFactory.createTerminal({ attachment: xR1, net: switchedBat });
+    const wjSwitchedBattery1 = d.elementsFactory.createWireJunction({ location: e1, position: 15 });
 
-    d.elementsFactory.createWire({ color: 'red/wht', from: wjSwitchedBattery1, to: mafPwr})
-    d.elementsFactory.createWire({ color: 'red/wht', from: wjSwitchedBattery1, to: switchedBatteryRelay})
+    d.elementsFactory.createWire({ color: 'red/wht', from: wjSwitchedBattery1, to: mafPwr })
+    d.elementsFactory.createWire({ color: 'red/wht', from: wjSwitchedBattery1, to: switchedBatteryRelay })
 
     const commonGnd = d.elementsFactory.createNet({ name: 'common-gnd' });
 
     const mafGnd = d.elementsFactory.createTerminal({ attachment: xMAF, net: commonGnd })
     const ecuCGND1 = d.elementsFactory.createTerminal({ attachment: x01, net: commonGnd })
-    const wjCommongGnd1 = d.elementsFactory.createWireJunction({ location: e1 });
+    const wjCommongGnd1 = d.elementsFactory.createWireJunction({ location: e1, position: 20 });
 
-    d.elementsFactory.createWire({ color: 'brn/org', from: wjCommongGnd1, to: mafGnd});
-    d.elementsFactory.createWire({ color: 'brn', from: ecuCGND1, to: wjCommongGnd1});
+    const mafSignal = d.elementsFactory.createNet({ name: 'maf signal' });
+    const sigMafMaf = d.elementsFactory.createTerminal({ attachment: xMAF, net: mafSignal });
+    const sigMafEcu = d.elementsFactory.createTerminal({ attachment: x01, net: mafSignal });
+    d.elementsFactory.createWire({ color: 'wht', from: sigMafMaf, to: sigMafEcu })
+    d.elementsFactory.createWire({ color: 'brn/org', from: wjCommongGnd1, to: mafGnd });
+    d.elementsFactory.createWire({ color: 'brn', from: ecuCGND1, to: wjCommongGnd1 });
 
     return d;
 }

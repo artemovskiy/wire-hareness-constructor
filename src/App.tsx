@@ -24,6 +24,7 @@ import { NodePresenteation } from './app/editor/types';
 import { Design } from './design/design';
 import { CssBaseline } from '@mui/material';
 import { NetList } from './components/NetList';
+import { Wire } from './core/nets/wire';
 
 function debounce<TArgs extends any[]>(callee: (...args: TArgs) => void, timeoutMs: number) {
   let lastCall: number | undefined;
@@ -55,6 +56,12 @@ const initalItemsPresentationContent = window.localStorage.getItem('items_resent
 
 function App() {
   const [design, setDesign] = useState<Design>(getDesign());
+
+  useEffect(() => {
+    console.log('will calculate wires length');
+    const lengths = design.elementsCollection.all<Wire>(Wire).map(wire => ({ wireName: wire.name, length: wire.getLength(), color: wire.color}));
+    console.log(lengths);
+  }, [design])
   
   const [nodesPresentations, setNodesPresentations] = useState<NodePresenteation[]>(initalItemsPresentation);
 

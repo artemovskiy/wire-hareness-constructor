@@ -16,7 +16,7 @@ export class Design {
         return connectors[0];
     };
 
-    private readonly elementsCollection = new ElementsCollection();
+    public readonly elementsCollection = new ElementsCollection();
     private readonly nameAssginer = new NameAssginer();
 
     public readonly elementsFactory: ElementFactory;
