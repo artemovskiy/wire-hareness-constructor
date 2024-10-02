@@ -3,6 +3,7 @@ import { Node } from '../graph/node';
 import { findPath } from "../graph/path";
 import { HarnessEdge } from "../harness/harness-edge";
 import { HarnessNode } from "../harness/harness-node";
+import { Net } from "./net";
 import { Terminal } from "./terminal";
 import { WireJoint } from "./wire-joint";
 
@@ -12,10 +13,13 @@ export class Wire extends Edge {
 
     name: string;
 
-    constructor(color: string, name: string) {
+    net: Net;
+
+    constructor(color: string, name: string, net: Net) {
         super()
         this.color = color;
         this.name = name;
+        this.net = net;
     }
 
     // TODO: calculate different cases

@@ -63,9 +63,9 @@ export const getDesign = (): Design => {
     const wjsiggnd1 = d.elementsFactory.createWireJunction({ location: e1, position: 10 });
 
 
-    const sigGndTAIRWire = d.elementsFactory.createWire({ color: 'green', from: wjsiggnd1, to: sigGndTAIR })
-    const sigGndTWATWire = d.elementsFactory.createWire({ color: 'green', from: wjsiggnd1, to: sigGndTWAT })
-    const sigGndEcuWire = d.elementsFactory.createWire({ color: 'green', from: sigGndECU, to: wjsiggnd1 })
+    const sigGndTAIRWire = d.elementsFactory.createWire({ color: 'green', from: wjsiggnd1, to: sigGndTAIR, net: sigGround })
+    const sigGndTWATWire = d.elementsFactory.createWire({ color: 'green', from: wjsiggnd1, to: sigGndTWAT, net: sigGround })
+    const sigGndEcuWire = d.elementsFactory.createWire({ color: 'green', from: sigGndECU, to: wjsiggnd1, net: sigGround })
     sigGround.root = sigGndECU;
 
     const switchedBat = d.elementsFactory.createNet({ name: 'switched-bat' });
@@ -74,8 +74,8 @@ export const getDesign = (): Design => {
     const switchedBatteryRelay = d.elementsFactory.createTerminal({ attachment: xR1, net: switchedBat });
     const wjSwitchedBattery1 = d.elementsFactory.createWireJunction({ location: e1, position: 15 });
 
-    d.elementsFactory.createWire({ color: 'red/wht', from: wjSwitchedBattery1, to: mafPwr })
-    d.elementsFactory.createWire({ color: 'red/wht', from: wjSwitchedBattery1, to: switchedBatteryRelay })
+    d.elementsFactory.createWire({ color: 'red/wht', from: wjSwitchedBattery1, to: mafPwr, net: switchedBat })
+    d.elementsFactory.createWire({ color: 'red/wht', from: wjSwitchedBattery1, to: switchedBatteryRelay, net: switchedBat })
 
     const commonGnd = d.elementsFactory.createNet({ name: 'common-gnd' });
 
@@ -86,9 +86,9 @@ export const getDesign = (): Design => {
     const mafSignal = d.elementsFactory.createNet({ name: 'maf signal' });
     const sigMafMaf = d.elementsFactory.createTerminal({ attachment: xMAF, net: mafSignal });
     const sigMafEcu = d.elementsFactory.createTerminal({ attachment: x01, net: mafSignal });
-    d.elementsFactory.createWire({ color: 'wht', from: sigMafMaf, to: sigMafEcu })
-    d.elementsFactory.createWire({ color: 'brn/org', from: wjCommongGnd1, to: mafGnd });
-    d.elementsFactory.createWire({ color: 'brn', from: ecuCGND1, to: wjCommongGnd1 });
+    d.elementsFactory.createWire({ color: 'wht', from: sigMafMaf, to: sigMafEcu, net: mafSignal })
+    d.elementsFactory.createWire({ color: 'brn/org', from: wjCommongGnd1, to: mafGnd, net: mafSignal });
+    d.elementsFactory.createWire({ color: 'brn', from: ecuCGND1, to: wjCommongGnd1, net: mafSignal });
 
     return d;
 }

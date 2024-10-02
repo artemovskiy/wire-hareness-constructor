@@ -1,18 +1,4 @@
 import React, { useEffect, useMemo } from 'react';
-import {
-  ReactFlow, applyEdgeChanges, applyNodeChanges,
-  type Node,
-  type Edge,
-  type OnNodesChange,
-  type OnEdgesChange,
-  Background,
-  Controls,
-  addEdge,
-  Connection,
-  Position,
-  ViewportPortal,
-} from '@xyflow/react';
-
 import { useState, useCallback } from 'react';
 
 import { EditorWorkspace } from './components/EditorWorkspace'
@@ -22,9 +8,11 @@ import '@xyflow/react/dist/style.css';
 import { getDesign } from './design';
 import { NodePresenteation } from './app/editor/types';
 import { Design } from './design/design';
-import { CssBaseline } from '@mui/material';
+import { Box, CssBaseline, Link, Modal } from '@mui/material';
 import { NetList } from './components/NetList';
 import { Wire } from './core/nets/wire';
+import { WireLegnthReport } from './components/WireLengthReport';
+import { WireLengthResult } from './core/analysis/types';
 
 function debounce<TArgs extends any[]>(callee: (...args: TArgs) => void, timeoutMs: number) {
   let lastCall: number | undefined;
@@ -48,25 +36,35 @@ const debouncedSavePres = debounce((val: NodePresenteation[]) => {
 }, 1000)
 
 const initalItemsPresentationContent = window.localStorage.getItem('items_resentation');
-  let initalItemsPresentation: NodePresenteation[] = [];
-  if(initalItemsPresentationContent) {
-    initalItemsPresentation = JSON.parse(initalItemsPresentationContent);
-  }
-  console.log({ initalItemsPresentation})
+let initalItemsPresentation: NodePresenteation[] = [];
+if (initalItemsPresentationContent) {
+  initalItemsPresentation = JSON.parse(initalItemsPresentationContent);
+}
+console.log({ initalItemsPresentation })
+
+const style = {
+  position: 'absolute' as 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 680,
+  backgroundColor: '#ECECEC',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
+};
 
 function App() {
   const [design, setDesign] = useState<Design>(getDesign());
 
-  useEffect(() => {
-    console.log('will calculate wires length');
-    const lengths = design.elementsCollection.all<Wire>(Wire).map(wire => ({ wireName: wire.name, length: wire.getLength(), color: wire.color}));
-    console.log(lengths);
+  const wiresLengths = useMemo(() => {
+    return design.elementsCollection.all<Wire>(Wire).map(wire => ({ wire, length: wire.getLength() } as WireLengthResult));
   }, [design])
-  
+
   const [nodesPresentations, setNodesPresentations] = useState<NodePresenteation[]>(initalItemsPresentation);
 
   useEffect(() => {
-    
+
   }, [nodesPresentations]);
 
   const onPresentationChange = useCallback((val: NodePresenteation[]) => {
@@ -78,12 +76,15 @@ function App() {
   const [selectedNetName, setSelectedNetName] = useState<string | undefined>();
   const selectedNet = useMemo(() => selectedNetName ? design.nets.find(net => net.name === selectedNetName) : undefined, [selectedNetName, design])
 
+  const [wireLengthModalOpen, setWireLengthModalOpen] = useState(false);
+
   return (
     <>
       <CssBaseline />
       <div style={{ display: "grid", gridTemplateColumns: "20vw 80vw" }}>
         <div style={{ gridColumn: "1" }}>
-          <NetList nets={design.nets} onNetClear={()=> setSelectedNetName(undefined)} onNetSelect={(net)=> {setSelectedNetName(net)}} selectedNet={selectedNetName}/>
+          <NetList nets={design.nets} onNetClear={() => setSelectedNetName(undefined)} onNetSelect={(net) => { setSelectedNetName(net) }} selectedNet={selectedNetName} />
+          <Link onClick={() => setWireLengthModalOpen(true)}>Show wire lengths</Link>
         </div>
         <div style={{ gridColumn: "2" }}>
           <EditorWorkspace
@@ -94,6 +95,11 @@ function App() {
           />
         </div>
       </div>
+      <Modal open={wireLengthModalOpen} onClose={() => setWireLengthModalOpen(false)}>
+        <Box sx={style}>
+          <WireLegnthReport data={wiresLengths} />
+        </Box>
+      </Modal>
     </>
 
   );
