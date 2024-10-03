@@ -29,10 +29,14 @@ import { NodePresenteation, TerminalDef } from '../../app/editor/types';
 import { applyNodesPosition, initNodePresentation } from './utils';
 import { Net } from '../../core/nets/net';
 import { ConnectorNode } from '../ConnectorNode';
+import { WireJunctionsNode } from '../WireJunctionsNode';
 import { Connector } from '../../core/harness/connector';
 import { Terminal } from '../../core/nets/terminal';
 import { ForkNode } from '../ForkNode';
 import { Fork } from '../../core/harness/fork';
+import { WireJoint } from '../../core/nets/wire-joint';
+import { WireNode } from '../../core/nets/wire-node';
+import { Wire } from '../../core/nets/wire';
 
 const design = getDesign();
 const harenessEdges = design.collectEdges();
@@ -56,6 +60,7 @@ const nodeTypes = {
     terminal: TerminalNode,
     connector: ConnectorNode,
     fork: ForkNode,
+    wireJunctions: WireJunctionsNode,
 };
 
 export function EditorWorkspace({ selectedNet, onPresentationChange, presentation, design }: EditorWorspaceProps) {
@@ -110,12 +115,29 @@ export function EditorWorkspace({ selectedNet, onPresentationChange, presentatio
                 }
             }
         });
-        edgesWithWjs.forEach(e => {
+        const allWireJoints = design.elementsCollection.all<WireJoint>(WireJoint);
+        edgesWithWjs.forEach((e: HarnessEdge) => {
+            const wireJunctionsOfEdge = allWireJoints.filter((i) => i.location.name === e.name);
+            console.log({ e, wireJunctionsOfEdge, allWireJoints });
             initialNodes.push({
                 id: `${(e.a as HarnessNode).name}-wjs-${(e.b as HarnessNode).name}`,
-                type: 'fork', // TODO: this is a DIRTy hack, need a separate component for wire junction
+                type: 'wireJunctions',
                 position: { x: 0, y: 0 },
-                data: { label: "wjs" },
+                data: {
+                    label: "wjs",
+                    length: e.length,
+                    data: wireJunctionsOfEdge.map(i => {
+                        return {
+                            name: i.name,
+                            net: i.net.name,
+                            position: i.position,
+                            positionReference: (e.a as HarnessNode).name,
+                            ends: i.edges.map(e => {
+                                return { nodeName: (e.anotherEndBy(i) as Terminal).attachment.name, color: (e as Wire).color }
+                            })
+                        }
+                    })
+                },
                 // TODO: fix it. WJ hareness nodea are never highlighted now
                 style: false ? { background: "none", boxShadow: "0 0 6px red" } as React.CSSProperties : { background: 'none', },
             })
@@ -165,16 +187,16 @@ export function EditorWorkspace({ selectedNet, onPresentationChange, presentatio
             });
             for (const c of positionChanges) {
                 const positionChange = c as NodePositionChange;
-                console.log({ positionChange});
-                if(!positionChange.position) {
+                console.log({ positionChange });
+                if (!positionChange.position) {
                     continue;
                 }
-                if(Number.isNaN(positionChange.position.x) || Number.isNaN(positionChange.position.x)) {
+                if (Number.isNaN(positionChange.position.x) || Number.isNaN(positionChange.position.x)) {
                     console.warn("got nan in position change", positionChange);
                     continue;
                 }
                 const index = presentation.findIndex(p => p.nodeId === positionChange.id);
-                if(index < 0) {
+                if (index < 0) {
                     throw new Error("index not found for id: " + positionChange.id);
                 }
                 const currentVal = presentation[index];
@@ -184,7 +206,7 @@ export function EditorWorkspace({ selectedNet, onPresentationChange, presentatio
                     position: positionChange.position,
                 }
                 onPresentationChange(newPres);
-           }
+            }
         },
         [presentation],
     );

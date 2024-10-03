@@ -60,7 +60,7 @@ export const getDesign = (): Design => {
     const sigGndTAIR = d.elementsFactory.createTerminal({ attachment: xTAIR, net: sigGround });
     const sigGndTWAT = d.elementsFactory.createTerminal({ attachment: x013, net: sigGround });
     const sigGndECU = d.elementsFactory.createTerminal({ attachment: x01, net: sigGround });
-    const wjsiggnd1 = d.elementsFactory.createWireJunction({ location: e1, position: 10 });
+    const wjsiggnd1 = d.elementsFactory.createWireJunction({ location: e1, position: 10, net: sigGround });
 
 
     const sigGndTAIRWire = d.elementsFactory.createWire({ color: 'green', from: wjsiggnd1, to: sigGndTAIR, net: sigGround })
@@ -72,7 +72,7 @@ export const getDesign = (): Design => {
 
     const mafPwr = d.elementsFactory.createTerminal({ attachment: xMAF, net: switchedBat });
     const switchedBatteryRelay = d.elementsFactory.createTerminal({ attachment: xR1, net: switchedBat });
-    const wjSwitchedBattery1 = d.elementsFactory.createWireJunction({ location: e1, position: 15 });
+    const wjSwitchedBattery1 = d.elementsFactory.createWireJunction({ location: e1, position: 15, net: switchedBat });
 
     d.elementsFactory.createWire({ color: 'red/wht', from: wjSwitchedBattery1, to: mafPwr, net: switchedBat })
     d.elementsFactory.createWire({ color: 'red/wht', from: wjSwitchedBattery1, to: switchedBatteryRelay, net: switchedBat })
@@ -81,7 +81,7 @@ export const getDesign = (): Design => {
 
     const mafGnd = d.elementsFactory.createTerminal({ attachment: xMAF, net: commonGnd })
     const ecuCGND1 = d.elementsFactory.createTerminal({ attachment: x01, net: commonGnd })
-    const wjCommongGnd1 = d.elementsFactory.createWireJunction({ location: e1, position: 20 });
+    const wjCommongGnd1 = d.elementsFactory.createWireJunction({ location: e1, position: 20, net: commonGnd });
 
     const mafSignal = d.elementsFactory.createNet({ name: 'maf signal' });
     const sigMafMaf = d.elementsFactory.createTerminal({ attachment: xMAF, net: mafSignal });

@@ -32,6 +32,7 @@ export interface TerminalParams extends BaseElementParam {
 export interface WireJunctionParams extends BaseElementParam {
     location: HarnessEdge;
     position: number;
+    net: Net;
 }
 
 export interface WireParams extends BaseElementParam {
@@ -88,7 +89,7 @@ export class ElementFactory {
 
     createWireJunction(params: WireJunctionParams): WireJoint {
         const name = params.name ?? this.nameAssginer.createNameFor(WireJoint);
-        const el = new WireJoint(name, params.location, params.position);
+        const el = new WireJoint(name, params.location, params.position, params.net);
         this.elementsCollection.put(WireJoint, el);
         return el;
     }
