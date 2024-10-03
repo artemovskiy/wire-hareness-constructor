@@ -15,11 +15,14 @@ export class Wire extends Edge {
 
     net: Net;
 
-    constructor(color: string, name: string, net: Net) {
+    crossSectionArea: number;
+
+    constructor(color: string, name: string, net: Net, crossSectionArea: number) {
         super()
         this.color = color;
         this.name = name;
         this.net = net;
+        this.crossSectionArea = crossSectionArea;
     }
 
     // TODO: calculate different cases

@@ -26,7 +26,7 @@ export const WireJunctionsNode = memo(({ isConnectable, data }: NodeProps): Reac
     positionReference: string;
     net: string;
     ends: { nodeName: string, color: string; }[];
-    
+
   }[];
 
   const rows: WireJunctionsTableRow[] = wireJunctions.map((j) => {
@@ -39,9 +39,9 @@ export const WireJunctionsNode = memo(({ isConnectable, data }: NodeProps): Reac
     }
     return j.ends.map((e, i) => {
       if (i == 0) {
-        return { common, nodeName: e.nodeName, color: e.color, key: j.name + e.nodeName}; // TODO use terinal name or pin position
+        return { common, nodeName: e.nodeName, color: e.color, key: j.name + e.nodeName }; // TODO use terinal name or pin position
       }
-      return { nodeName: e.nodeName, color: e.color, key: j.name + e.nodeName}
+      return { nodeName: e.nodeName, color: e.color, key: j.name + e.nodeName }
     })
   }).flat();
 
@@ -58,22 +58,22 @@ export const WireJunctionsNode = memo(({ isConnectable, data }: NodeProps): Reac
         <Typography>{data.length as number}</Typography>
       </div>
       <div>
-        <table style={{ borderCollapse: 'collapse'}}>
+        <table style={{ borderCollapse: 'collapse' }}>
           <thead>
             <tr>
-              <td style={{ border: "1px solid #000000", textAlign: 'center'}} colSpan={5}>wire junctions</td>
+              <td style={{ border: "1px solid #000000", textAlign: 'center' }} colSpan={5}>wire junctions</td>
             </tr>
           </thead>
           <tbody>
             {rows.map(i => <tr key={i.key}>
               {i.common && <>
-                <td style={{ border: "1px solid #000000"}}rowSpan={i.common.endsQty}>{i.common.name}</td>
-                <td style={{ border: "1px solid #000000"}}rowSpan={i.common.endsQty}>{i.common.net}</td>
-                <td style={{ border: "1px solid #000000"}} rowSpan={i.common.endsQty}>{i.common.position as number}cm from {i.common.positionReference}</td>
+                <td style={{ border: "1px solid #000000" }} rowSpan={i.common.endsQty}>{i.common.name}</td>
+                <td style={{ border: "1px solid #000000" }} rowSpan={i.common.endsQty}>{i.common.net}</td>
+                <td style={{ border: "1px solid #000000" }} rowSpan={i.common.endsQty}>{i.common.position as number}cm from {i.common.positionReference}</td>
               </>
               }
-              <td style={{ border: "1px solid #000000"}}><WireColorIcon colorText={i.color}/></td>
-              <td style={{ border: "1px solid #000000"}}>{i.nodeName}</td>
+              <td style={{ border: "1px solid #000000" }}><WireColorIcon colorText={i.color} /></td>
+              <td style={{ border: "1px solid #000000" }}>{i.nodeName}</td>
             </tr>)}
           </tbody>
         </table>

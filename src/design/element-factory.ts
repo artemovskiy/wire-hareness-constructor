@@ -38,6 +38,7 @@ export interface WireJunctionParams extends BaseElementParam {
 export interface WireParams extends BaseElementParam {
     color: string;
     net: Net;
+    crossSectionArea: number;
 
     from?: WireNode;
     to?: WireNode;
@@ -96,7 +97,7 @@ export class ElementFactory {
 
     createWire(params: WireParams): Wire {
         const name = params.name ?? this.nameAssginer.createNameFor(Wire)
-        const el = new Wire(params.color, name, params.net);
+        const el = new Wire(params.color, name, params.net, params.crossSectionArea);
         this.elementsCollection.put(Wire, el);
 
         // TODO: check for ability to connect, check nets and graph cycles

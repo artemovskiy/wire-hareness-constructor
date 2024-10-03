@@ -1,6 +1,6 @@
 import React from 'react';
 import { WireLengthResult } from '../../core/analysis/types';
-import { Table, TableBody, TableRow, TableCell } from '@mui/material';
+import { Table, TableBody, TableRow, TableCell, Typography } from '@mui/material';
 import { WireColorIcon } from '../WireColorIcon';
 import { HarnessNode } from '../../core/harness/harness-node';
 import { WireNode } from '../../core/nets/wire-node';
@@ -35,6 +35,7 @@ export const WireLegnthReport = ({ data }: WireLengthReportProps) => {
                 </TableCell>
                 <TableCell>
                     <WireColorIcon colorText={i.wire.color} />
+                    <Typography>{i.wire.crossSectionArea}</Typography>
                 </TableCell>
                 <TableCell>
                     { i.wire.net.name }

@@ -8,10 +8,11 @@ import '@xyflow/react/dist/style.css';
 import { getDesign } from './design';
 import { NodePresenteation } from './app/editor/types';
 import { Design } from './design/design';
-import { Box, CssBaseline, Link, Modal } from '@mui/material';
+import { Box, CssBaseline, Link, List, ListItem, Modal } from '@mui/material';
 import { NetList } from './components/NetList';
 import { Wire } from './core/nets/wire';
 import { WireLegnthReport } from './components/WireLengthReport';
+import { OrderWireLengthReport } from './components/OrderWireLengthReport';
 import { WireLengthResult } from './core/analysis/types';
 
 function debounce<TArgs extends any[]>(callee: (...args: TArgs) => void, timeoutMs: number) {
@@ -77,6 +78,7 @@ function App() {
   const selectedNet = useMemo(() => selectedNetName ? design.nets.find(net => net.name === selectedNetName) : undefined, [selectedNetName, design])
 
   const [wireLengthModalOpen, setWireLengthModalOpen] = useState(false);
+  const [orderWireLengthModalOpen, setOrderWireLengthModalOpen] = useState(false);
 
   return (
     <>
@@ -84,7 +86,14 @@ function App() {
       <div style={{ display: "grid", gridTemplateColumns: "20vw 80vw" }}>
         <div style={{ gridColumn: "1" }}>
           <NetList nets={design.nets} onNetClear={() => setSelectedNetName(undefined)} onNetSelect={(net) => { setSelectedNetName(net) }} selectedNet={selectedNetName} />
-          <Link onClick={() => setWireLengthModalOpen(true)}>Show wire lengths</Link>
+          <List>
+            <ListItem>
+              <Link onClick={() => setWireLengthModalOpen(true)}>Show wire lengths</Link>
+            </ListItem>
+            <ListItem>
+              <Link onClick={() => setOrderWireLengthModalOpen(true)}>Show total wire lengths</Link>
+            </ListItem>
+          </List>
         </div>
         <div style={{ gridColumn: "2" }}>
           <EditorWorkspace
@@ -98,6 +107,11 @@ function App() {
       <Modal open={wireLengthModalOpen} onClose={() => setWireLengthModalOpen(false)}>
         <Box sx={style}>
           <WireLegnthReport data={wiresLengths} />
+        </Box>
+      </Modal>
+      <Modal open={orderWireLengthModalOpen} onClose={() => setOrderWireLengthModalOpen(false)}>
+        <Box sx={style}>
+          <OrderWireLengthReport data={wiresLengths} />
         </Box>
       </Modal>
     </>

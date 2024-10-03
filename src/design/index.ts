@@ -63,9 +63,9 @@ export const getDesign = (): Design => {
     const wjsiggnd1 = d.elementsFactory.createWireJunction({ location: e1, position: 10, net: sigGround });
 
 
-    const sigGndTAIRWire = d.elementsFactory.createWire({ color: 'green', from: wjsiggnd1, to: sigGndTAIR, net: sigGround })
-    const sigGndTWATWire = d.elementsFactory.createWire({ color: 'green', from: wjsiggnd1, to: sigGndTWAT, net: sigGround })
-    const sigGndEcuWire = d.elementsFactory.createWire({ color: 'green', from: sigGndECU, to: wjsiggnd1, net: sigGround })
+    const sigGndTAIRWire = d.elementsFactory.createWire({ color: 'green', from: wjsiggnd1, to: sigGndTAIR, net: sigGround, crossSectionArea: 0.5 })
+    const sigGndTWATWire = d.elementsFactory.createWire({ color: 'green', from: wjsiggnd1, to: sigGndTWAT, net: sigGround, crossSectionArea: 0.5 })
+    const sigGndEcuWire = d.elementsFactory.createWire({ color: 'green', from: sigGndECU, to: wjsiggnd1, net: sigGround, crossSectionArea: 0.5 })
     sigGround.root = sigGndECU;
 
     const switchedBat = d.elementsFactory.createNet({ name: 'switched-bat' });
@@ -74,8 +74,8 @@ export const getDesign = (): Design => {
     const switchedBatteryRelay = d.elementsFactory.createTerminal({ attachment: xR1, net: switchedBat });
     const wjSwitchedBattery1 = d.elementsFactory.createWireJunction({ location: e1, position: 15, net: switchedBat });
 
-    d.elementsFactory.createWire({ color: 'red/wht', from: wjSwitchedBattery1, to: mafPwr, net: switchedBat })
-    d.elementsFactory.createWire({ color: 'red/wht', from: wjSwitchedBattery1, to: switchedBatteryRelay, net: switchedBat })
+    d.elementsFactory.createWire({ color: 'red/wht', from: wjSwitchedBattery1, to: mafPwr, net: switchedBat, crossSectionArea: 0.5 })
+    d.elementsFactory.createWire({ color: 'red/wht', from: wjSwitchedBattery1, to: switchedBatteryRelay, net: switchedBat, crossSectionArea: 2.5 })
 
     const commonGnd = d.elementsFactory.createNet({ name: 'common-gnd' });
 
@@ -86,9 +86,9 @@ export const getDesign = (): Design => {
     const mafSignal = d.elementsFactory.createNet({ name: 'maf signal' });
     const sigMafMaf = d.elementsFactory.createTerminal({ attachment: xMAF, net: mafSignal });
     const sigMafEcu = d.elementsFactory.createTerminal({ attachment: x01, net: mafSignal });
-    d.elementsFactory.createWire({ color: 'wht', from: sigMafMaf, to: sigMafEcu, net: mafSignal })
-    d.elementsFactory.createWire({ color: 'brn/org', from: wjCommongGnd1, to: mafGnd, net: mafSignal });
-    d.elementsFactory.createWire({ color: 'brn', from: ecuCGND1, to: wjCommongGnd1, net: mafSignal });
+    d.elementsFactory.createWire({ color: 'wht', from: sigMafMaf, to: sigMafEcu, net: mafSignal, crossSectionArea: 0.5 })
+    d.elementsFactory.createWire({ color: 'brn/org', from: wjCommongGnd1, to: mafGnd, net: mafSignal, crossSectionArea: 0.5 });
+    d.elementsFactory.createWire({ color: 'brn', from: ecuCGND1, to: wjCommongGnd1, net: mafSignal, crossSectionArea: 0.5 });
 
     return d;
 }
