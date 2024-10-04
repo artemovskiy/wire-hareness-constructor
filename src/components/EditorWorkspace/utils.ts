@@ -21,7 +21,7 @@ export const buildNetNodesEdges = (net: Net) => {
                 id: node.name,
                 position: { x: 0, y: 0 },
                 data: { label: node.name },
-                parentId: node.attachment.name,
+                parentId: node.attachment.connector.name,
                 type: 'terminal',
             })
         } else {

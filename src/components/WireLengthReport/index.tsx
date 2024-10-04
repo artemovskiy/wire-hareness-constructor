@@ -13,7 +13,7 @@ export interface WireLengthReportProps {
 
 const harnessNodeText = (node: WireNode) => {
     if(node instanceof Terminal) {
-        return node.attachment.name;
+        return node.attachment.connector.name;
     }
     if(node instanceof WireJoint) {
         const wireJointLocation = node.location;

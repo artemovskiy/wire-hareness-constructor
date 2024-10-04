@@ -8,6 +8,7 @@ import { NameAssginer } from "./name-assigner";
 import { Wire } from "../core/nets/wire";
 import { Net } from "../core/nets/net";
 import { WireNode } from "../core/nets/wire-node";
+import { TerminalAttachment } from "../core/nets/terminal-attachment";
 
 export interface BaseElementParam {
     name?: string;
@@ -25,7 +26,8 @@ export interface EdgeParams extends BaseElementParam {
 }
 
 export interface TerminalParams extends BaseElementParam {
-    attachment: Connector;
+    connector: Connector;
+    pin: number;
     net: Net;
 }
 
@@ -57,8 +59,7 @@ export class ElementFactory {
 
     createConnector(params: ConnectorParams): Connector {
         const name = params.name ?? this.nameAssginer.createNameFor(Connector);
-        const connector = new Connector(name);
-        connector.numPins = params.maxPinsQty;
+        const connector = new Connector(name, params.maxPinsQty);
         this.elementsCollection.put(Connector, connector);
         return connector;
     }
@@ -80,7 +81,10 @@ export class ElementFactory {
 
     createTerminal(params: TerminalParams): Terminal {
         const name = params.name ?? this.nameAssginer.createNameFor(Terminal);
-        const el = new Terminal(name, params.attachment);
+
+        const attachment = new TerminalAttachment(params.connector, params.pin);
+        const el = new Terminal(name, attachment);
+        params.connector.setAttachment(attachment);
         this.elementsCollection.put(Terminal, el);
 
         params.net.terminals.push(el);

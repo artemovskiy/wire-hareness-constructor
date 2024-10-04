@@ -15,6 +15,7 @@ type CommonColuns = {
 type WireJunctionsTableRow = {
   common?: CommonColuns;
   nodeName: string;
+  pin?: number;
   color: string;
   key: string;
 }
@@ -25,7 +26,7 @@ export const WireJunctionsNode = memo(({ isConnectable, data }: NodeProps): Reac
     position: number;
     positionReference: string;
     net: string;
-    ends: { nodeName: string, color: string; }[];
+    ends: { nodeName: string, color: string; pin: number; }[];
 
   }[];
 
@@ -39,9 +40,9 @@ export const WireJunctionsNode = memo(({ isConnectable, data }: NodeProps): Reac
     }
     return j.ends.map((e, i) => {
       if (i == 0) {
-        return { common, nodeName: e.nodeName, color: e.color, key: j.name + e.nodeName }; // TODO use terinal name or pin position
+        return { common, nodeName: e.nodeName, color: e.color, pin: e.pin, key: j.name + e.nodeName }; // TODO use terinal name or pin position
       }
-      return { nodeName: e.nodeName, color: e.color, key: j.name + e.nodeName }
+      return { nodeName: e.nodeName, color: e.color, pin: e.pin, key: j.name + e.nodeName }
     })
   }).flat();
 
@@ -73,7 +74,7 @@ export const WireJunctionsNode = memo(({ isConnectable, data }: NodeProps): Reac
               </>
               }
               <td style={{ border: "1px solid #000000" }}><WireColorIcon colorText={i.color} /></td>
-              <td style={{ border: "1px solid #000000" }}>{i.nodeName}</td>
+              <td style={{ border: "1px solid #000000" }}>{i.nodeName} {i.pin !== undefined && <span>{i.pin}</span>}</td>
             </tr>)}
           </tbody>
         </table>

@@ -57,9 +57,9 @@ export const getDesign = (): Design => {
 
     const sigGround = d.elementsFactory.createNet({ name: 'sig-gnd' });
 
-    const sigGndTAIR = d.elementsFactory.createTerminal({ attachment: xTAIR, net: sigGround });
-    const sigGndTWAT = d.elementsFactory.createTerminal({ attachment: x013, net: sigGround });
-    const sigGndECU = d.elementsFactory.createTerminal({ attachment: x01, net: sigGround });
+    const sigGndTAIR = d.elementsFactory.createTerminal({ connector: xTAIR, pin: 1, net: sigGround });
+    const sigGndTWAT = d.elementsFactory.createTerminal({ connector: x013, pin: 1, net: sigGround });
+    const sigGndECU = d.elementsFactory.createTerminal({ connector: x01, pin: 15, net: sigGround });
     const wjsiggnd1 = d.elementsFactory.createWireJunction({ location: e1, position: 10, net: sigGround });
 
 
@@ -70,8 +70,8 @@ export const getDesign = (): Design => {
 
     const switchedBat = d.elementsFactory.createNet({ name: 'switched-bat' });
 
-    const mafPwr = d.elementsFactory.createTerminal({ attachment: xMAF, net: switchedBat });
-    const switchedBatteryRelay = d.elementsFactory.createTerminal({ attachment: xR1, net: switchedBat });
+    const mafPwr = d.elementsFactory.createTerminal({ connector: xMAF, pin: 3, net: switchedBat });
+    const switchedBatteryRelay = d.elementsFactory.createTerminal({ connector: xR1, pin: 2, net: switchedBat });
     const wjSwitchedBattery1 = d.elementsFactory.createWireJunction({ location: e1, position: 15, net: switchedBat });
 
     d.elementsFactory.createWire({ color: 'red/wht', from: wjSwitchedBattery1, to: mafPwr, net: switchedBat, crossSectionArea: 0.5 })
@@ -79,13 +79,13 @@ export const getDesign = (): Design => {
 
     const commonGnd = d.elementsFactory.createNet({ name: 'common-gnd' });
 
-    const mafGnd = d.elementsFactory.createTerminal({ attachment: xMAF, net: commonGnd })
-    const ecuCGND1 = d.elementsFactory.createTerminal({ attachment: x01, net: commonGnd })
+    const mafGnd = d.elementsFactory.createTerminal({ connector: xMAF, pin: 1, net: commonGnd })
+    const ecuCGND1 = d.elementsFactory.createTerminal({ connector: x01, pin: 17, net: commonGnd })
     const wjCommongGnd1 = d.elementsFactory.createWireJunction({ location: e1, position: 20, net: commonGnd });
 
     const mafSignal = d.elementsFactory.createNet({ name: 'maf signal' });
-    const sigMafMaf = d.elementsFactory.createTerminal({ attachment: xMAF, net: mafSignal });
-    const sigMafEcu = d.elementsFactory.createTerminal({ attachment: x01, net: mafSignal });
+    const sigMafMaf = d.elementsFactory.createTerminal({ connector: xMAF, pin: 2, net: mafSignal });
+    const sigMafEcu = d.elementsFactory.createTerminal({ connector: x01,  pin: 33, net: mafSignal });
     d.elementsFactory.createWire({ color: 'wht', from: sigMafMaf, to: sigMafEcu, net: mafSignal, crossSectionArea: 0.5 })
     d.elementsFactory.createWire({ color: 'brn/org', from: wjCommongGnd1, to: mafGnd, net: mafSignal, crossSectionArea: 0.5 });
     d.elementsFactory.createWire({ color: 'brn', from: ecuCGND1, to: wjCommongGnd1, net: mafSignal, crossSectionArea: 0.5 });

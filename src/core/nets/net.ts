@@ -21,7 +21,7 @@ export class Net {
                 if (iTerminal === jTerminal) {
                     continue;
                 }
-                const path = findPath(iTerminal.attachment, jTerminal.attachment);
+                const path = findPath(iTerminal.attachment.connector, jTerminal.attachment.connector);
                 if (!path) {
                     throw new Error("The net is not complete!");
                 }

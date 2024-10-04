@@ -42,17 +42,17 @@ export class Wire extends Edge {
         }
 
         if (finish instanceof Terminal) {
-            return this.getPathEdges(start.attachment, finish.attachment).reduce((acc, edge) => acc + edge.length, 0);
+            return this.getPathEdges(start.attachment.connector, finish.attachment.connector).reduce((acc, edge) => acc + edge.length, 0);
         } if (finish instanceof WireJoint) {
             const jounctionEdge = finish.location;
-            const path = findPath(start.attachment, jounctionEdge.a);
+            const path = findPath(start.attachment.connector, jounctionEdge.a);
             if (!path) {
                 throw new Error(`Unable to find path for wire ${this.name}`)
             }
             const pathForDebug = [...path]
 
             const pathEdges: HarnessEdge[] = [];
-            let currentNode: HarnessNode = start.attachment;
+            let currentNode: HarnessNode = start.attachment.connector;
             let nextNode: HarnessNode = path.shift() as HarnessNode;
             while (nextNode != jounctionEdge.a) {
                 nextNode = path.shift() as HarnessNode;

@@ -80,7 +80,7 @@ export function EditorWorkspace({ selectedNet, onPresentationChange, presentatio
                 const connectorTerminals: Terminal[] = [];
                 for (const net of design.nets) {
                     for (const terminal of net.terminals) {
-                        if (terminal.attachment === n) {
+                        if (terminal.attachment.connector === n) {
                             connectorTerminals.push(terminal);
                             termToNet.set(terminal, net);
                         }
@@ -92,10 +92,10 @@ export function EditorWorkspace({ selectedNet, onPresentationChange, presentatio
                     position: { x: 0, y: 0 },
                     data: {
                         label: !n.descr ? n.name : `${n.name} (${n.descr})`,
-                        terminals: connectorTerminals.map(((t, i) => {
+                        terminals: connectorTerminals.sort((a, b) => a.attachment.pin - b.attachment.pin).map(((t, i) => {
                             const net = termToNet.get(t)
                             return {
-                                position: i + 1,
+                                position: t.attachment.pin,
                                 color: t.wire.color,
                                 name: t.name,
                                 netName: net?.name,
@@ -133,7 +133,8 @@ export function EditorWorkspace({ selectedNet, onPresentationChange, presentatio
                             position: i.position,
                             positionReference: (e.a as HarnessNode).name,
                             ends: i.edges.map(e => {
-                                return { nodeName: (e.anotherEndBy(i) as Terminal).attachment.name, color: (e as Wire).color }
+                                const terminal = (e.anotherEndBy(i) as Terminal);
+                                return { nodeName: terminal.attachment.connector.name, color: (e as Wire).color, pin: terminal.attachment.pin  }
                             })
                         }
                     })
@@ -232,7 +233,7 @@ export function EditorWorkspace({ selectedNet, onPresentationChange, presentatio
                 nodeTypes={nodeTypes}
                 fitView
             >
-                <Background />
+                <Background style={{ backgroundColor: '#F6F6F6'}}  />
                 <Controls />
             </ReactFlow>
         </div>
